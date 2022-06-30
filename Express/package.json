@@ -17,7 +17,7 @@
     "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "openapi:codegen": "openapi -i http://localhost:8080/api-spec/ -o ../Angular/src/app/service -c angular --useUnionTypes --indent 2"
+    "openapi:codegen": "openapi -i http://localhost:8080/api-spec/ -o ../Angular/src/app/service/generate -c angular --useUnionTypes --indent 2"
   },
   "dependencies": {
     "@prisma/client": "^3.15.2",

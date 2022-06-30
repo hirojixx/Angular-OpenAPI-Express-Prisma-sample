@@ -11,7 +11,7 @@ import type { ResponseUserApi } from '../models/ResponseUserApi';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class UsersService {
 
   constructor(private readonly http: HttpClient) {}
