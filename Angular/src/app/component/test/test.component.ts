@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ResponseUser, UsersService } from 'src/app/service';
+import { ResponseUser, UsersService } from 'src/app/service/generate';
 
 @Component({
   selector: 'app-test',
