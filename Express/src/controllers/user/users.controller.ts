@@ -1,24 +1,30 @@
 import { PrismaClient, User } from '@prisma/client';
 import { hash } from 'bcrypt';
-import { Controller, Param, Body, Get, Post, Put, Delete, HttpCode } from 'routing-controllers';
+import { Param, Body, Get, Post, Put, Delete, HttpCode, UseBefore, JsonController } from 'routing-controllers';
+import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 
 import { HttpException } from '../../utils/HttpException';
 import { isEmpty } from '../../utils/util';
+import { validationMiddleware } from '../../utils/validation.middleware';
 
-import { CreateUser } from './users.viewmodel';
+import { CreateUser, ResponseUserApi } from './users.viewmodel';
 
-@Controller()
+@JsonController('/users')
 export class UsersController {
   private user = new PrismaClient().user;
 
-  @Get('/users')
-  async getUsers() {
+  @Get('/')
+  @OpenAPI({ summary: 'Return a list of users' })
+  @ResponseSchema(ResponseUserApi)
+  async getUsers(): Promise<ResponseUserApi> {
     const findAllUsersData: User[] = await this.user.findMany();
     return { data: findAllUsersData, message: 'findAll' };
   }
 
-  @Get('/users/:id')
-  async getUserById(@Param('id') userId: number) {
+  @Get('/:id')
+  @OpenAPI({ summary: 'Return find a user' })
+  @ResponseSchema(ResponseUserApi)
+  async getUserById(@Param('id') userId: number): Promise<ResponseUserApi> {
     const findUser = await this.user.findUnique({
       where: {
         user_id: userId,
@@ -26,12 +32,15 @@ export class UsersController {
     });
     if (!findUser) throw new HttpException(409, "You're not user");
 
-    return { data: findUser, message: 'findOne' };
+    return { data: [findUser], message: 'findOne' };
   }
 
-  @Post('/users')
+  @Post('/')
   @HttpCode(201)
-  async createUser(@Body() userData: CreateUser) {
+  @UseBefore(validationMiddleware(CreateUser, 'body'))
+  @OpenAPI({ summary: 'Create a new user' })
+  @ResponseSchema(ResponseUserApi)
+  async createUser(@Body() userData: CreateUser): Promise<ResponseUserApi> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     const findUser: User | null = await this.user.findUnique({
@@ -48,11 +57,14 @@ export class UsersController {
       data: saveData,
     });
 
-    return { data: saved, message: 'created' };
+    return { data: [saved], message: 'created' };
   }
 
-  @Put('/users/:id')
-  async updateUser(@Param('id') userId: number, @Body() userData: CreateUser) {
+  @Put('/:id')
+  @OpenAPI({ summary: 'Update a user' })
+  @ResponseSchema(ResponseUserApi)
+  @UseBefore(validationMiddleware(CreateUser, 'body', true))
+  async updateUser(@Param('id') userId: number, @Body() userData: CreateUser): Promise<ResponseUserApi> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     const findUser: User | null = await this.user.findUnique({
@@ -79,8 +91,10 @@ export class UsersController {
     return { data: updates, message: 'updated' };
   }
 
-  @Delete('/users/:id')
-  async deleteUser(@Param('id') userId: number) {
+  @Delete('/:id')
+  @OpenAPI({ summary: 'Delete a user' })
+  @ResponseSchema(ResponseUserApi)
+  async deleteUser(@Param('id') userId: number): Promise<ResponseUserApi> {
     const findUser: User | null = await this.user.findUnique({
       where: {
         user_id: userId,
@@ -95,6 +109,6 @@ export class UsersController {
       },
     });
 
-    return { data: deleteUserData, message: 'deleted' };
+    return { data: [deleteUserData], message: 'deleted' };
   }
 }

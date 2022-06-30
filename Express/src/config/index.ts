@@ -5,5 +5,5 @@ export const { NODE_ENV, PORT, SECRET_KEY, LOG_FORMAT, LOG_DIR, ORIGIN } = {
   SECRET_KEY: 'secretKey',
   LOG_FORMAT: 'short',
   LOG_DIR: '../logs',
-  ORIGIN: 'your.domain.com',
+  ORIGIN: '*',
 } as const;
